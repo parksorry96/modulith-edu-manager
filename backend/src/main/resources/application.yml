@@ -1,0 +1,240 @@
+# Spring Boot 3.5 + Java 21 Configuration
+# Education Manager System - Main Configuration
+
+spring:
+  application:
+    name: edu-manager-backend
+  
+  # Profile Configuration
+  profiles:
+    active: local
+    group:
+      local: local,common
+      dev: dev,common
+      prod: prod,common
+  
+  # Virtual Threads (Java 21 Project Loom)
+  threads:
+    virtual:
+      enabled: true
+  
+  # Bean Definition Override 허용 (JPA + MongoDB TransactionManager 충돌 해결)
+  main:
+    allow-bean-definition-overriding: true
+  
+  # Docker Compose 자동 실행 비활성화 (수동으로 실행)
+  docker:
+    compose:
+      enabled: false
+  
+  # Spring Modulith 이벤트 설정
+  modulith:
+    events:
+      mongodb:
+        transaction-management:
+          enabled: true  # MongoDB 트랜잭션 활성화
+      completion-mode: DELETE  # 완료된 이벤트 자동 삭제
+      republish-outstanding-events-on-restart: true  # 재시작 시 미처리 이벤트 재발행
+      jdbc-schema-initialization:
+        enabled: true
+  
+  # Database Configuration - PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/edumanager
+    username: edumanager
+    password: edumanager123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      pool-name: EduManagerHikariCP
+  
+  # JPA Configuration
+  jpa:
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+        connection:
+          provider_disables_autocommit: true
+  
+  # Redis Configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+    
+    # MongoDB Configuration (나중에 필요시 추가)
+    mongodb:
+      host: localhost
+      port: 27017
+      database: edumanager-docs
+  
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+    consumer:
+      group-id: edu-manager-group
+      auto-offset-reset: earliest  # 처음부터 메시지 소비
+      enable-auto-commit: false    # 수동 커밋으로 안정성 향상
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.edumanager
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.edumanager.shared.events.DomainEvent
+  
+  # Security Configuration
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # JWT will be configured programmatically with RSA keys
+          jwk-set-uri: # Will be set programmatically
+  
+  # Jackson Configuration (JSON Processing)
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: Asia/Seoul
+    default-property-inclusion: NON_NULL
+
+# Server Configuration
+server:
+  port: 8081  # 포트 변경 (Kafka UI와도 겹치지 않게)
+  servlet:
+    context-path: /api
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: on_param
+    include-exception: false
+
+# Logging Configuration
+logging:
+  level:
+    com.edumanager: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.kafka: INFO
+    org.springframework.data.jpa: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/edu-manager.log
+
+# Management & Monitoring (Actuator)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Application Specific Configuration
+app:
+  jwt:
+    private-key: classpath:keys/private.pem
+    public-key: classpath:keys/public.pem
+    expiration: PT24H        # ISO-8601 Duration (24시간)
+    refresh-expiration: P7D  # ISO-8601 Duration (7일)
+    issuer: edu-manager
+    audience: edu-manager-client
+  
+  cors:
+    allowed-origins: 
+      - http://localhost:3000
+      - http://localhost:5173
+    allowed-methods:
+      - GET
+      - POST
+      - PUT
+      - PATCH
+      - DELETE
+      - OPTIONS
+    allowed-headers: "*"
+    allow-credentials: true
+  
+  modulith:
+    events:
+      kafka-enabled: true
+      cleanup:
+        enabled: true
+        retention-days: 7  # 7일 이상된 완료 이벤트 삭제
+
+---
+# Local Development Profile
+spring:
+  config:
+    activate:
+      on-profile: local
+  
+  # H2 Database for quick local testing (optional)
+  h2:
+    console:
+      enabled: false
+
+app:
+  cors:
+    allowed-origins: "*"
+
+---
+# Development Profile  
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+logging:
+  level:
+    root: INFO
+    com.edumanager: DEBUG
+
+---
+# Production Profile
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+
+logging:
+  level:
+    root: WARN
+    com.edumanager: INFO

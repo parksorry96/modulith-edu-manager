@@ -1,0 +1,55 @@
+# Test Configuration for edu-manager
+spring:
+  # H2 In-Memory Database for testing
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  # JPA Test Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  
+  # Disable MongoDB events for testing
+  modulith:
+    events:
+      mongodb:
+        enabled: false
+      completion-mode: DELETE
+  
+  # Disable Kafka for unit tests
+  kafka:
+    bootstrap-servers: ${spring.embedded.kafka.brokers:localhost:9092}
+  
+  # Disable Docker Compose
+  docker:
+    compose:
+      enabled: false
+  
+  # Redis Test Configuration (using embedded or mock)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  
+# Logging for tests
+logging:
+  level:
+    com.edumanager: DEBUG
+    org.springframework.modulith: DEBUG
+    org.hibernate.SQL: DEBUG
+    
+# Test specific JWT settings
+app:
+  jwt:
+    private-key: classpath:test-keys/private.pem
+    public-key: classpath:test-keys/public.pem
+    expiration: PT1H        # 1 hour for tests
+    refresh-expiration: P1D # 1 day for tests

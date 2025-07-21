@@ -1,0 +1,16 @@
+{
+  "name": "edu-manager",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Education Management System",
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "preview": "pnpm --filter frontend preview",
+    "lint": "pnpm --filter frontend lint",
+    "type-check": "pnpm --filter frontend type-check"
+  },
+  "devDependencies": {
+    "pnpm": "^8.0.0"
+  }
+}
