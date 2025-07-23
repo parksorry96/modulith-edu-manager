@@ -6,6 +6,7 @@ import com.edumanager.shared.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
@@ -17,11 +18,11 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-
-    // JSON 응답 생성을 위한 ObjectMapper
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    // Spring이 관리하는 ObjectMapper 주입 (JSR310 모듈 자동 포함)
+    private final ObjectMapper objectMapper;
 
     /**
      * 인증 실패 시 호출되는 메서드

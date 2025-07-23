@@ -73,51 +73,14 @@ services:
     networks:
       - edu-manager-network
 
-  # MongoDB Database with Replica Set
+  # MongoDB Database (standalone)
   mongo:
-    image: mongo:7.0
+    image: mongo:4.4
     container_name: edu-manager-mongo
-    command: mongod --replSet rs0
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    networks:
-      - edu-manager-network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
-      timeout: 10s
-      retries: 5
-
-  # MongoDB Replica Set Initializer
-  mongo-init:
-    image: mongo:7.0
-    container_name: edu-manager-mongo-init
-    depends_on:
-      mongo:
-        condition: service_healthy
-    command: >
-      mongosh --host mongo:27017 --eval
-      'rs.initiate({
-        _id: "rs0",
-        members: [{_id: 0, host: "mongo:27017"}]
-      })'
-    networks:
-      - edu-manager-network
-
-  # Prometheus for metrics collection
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: edu-manager-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
     networks:
       - edu-manager-network
 
@@ -126,7 +89,6 @@ volumes:
   redis_data:
   kafka_data:
   mongo_data:
-  prometheus_data:
 
 networks:
   edu-manager-network:

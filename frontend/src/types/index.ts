@@ -1,3 +1,5 @@
+import { UserRole } from './userRole.ts';
+
 export interface User {
   id: string;
   username: string;
@@ -26,12 +28,6 @@ export interface Course {
   endDate: string;
   maxStudents: number;
   enrolledStudents: number;
-}
-
-export enum UserRole {
-  ADMIN = 'ADMIN',
-  INSTRUCTOR = 'INSTRUCTOR',
-  STUDENT = 'STUDENT',
 }
 
 export enum StudentStatus {

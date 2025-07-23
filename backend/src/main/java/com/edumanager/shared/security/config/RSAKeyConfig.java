@@ -5,8 +5,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
@@ -26,12 +26,16 @@ import java.util.Base64;
 
 @Configuration
 @Slf4j
-@RequiredArgsConstructor
 public class RSAKeyConfig {
 
     private final ResourceLoader resourceLoader;
-
     private final JwtProperties jwtProperties;
+
+    public RSAKeyConfig(@Qualifier("webApplicationContext") ResourceLoader resourceLoader, 
+                       JwtProperties jwtProperties) {
+        this.resourceLoader = resourceLoader;
+        this.jwtProperties = jwtProperties;
+    }
 
     /**
      * RSA Private Key 로드

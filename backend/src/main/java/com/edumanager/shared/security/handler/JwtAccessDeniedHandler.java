@@ -6,6 +6,7 @@ import com.edumanager.shared.exception.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -19,10 +20,11 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
-    // JSON 응답 생성을 위한 ObjectMapper
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    // Spring이 관리하는 ObjectMapper 주입 (JSR310 모듈 자동 포함)
+    private final ObjectMapper objectMapper;
 
     /**
      * 권한 부족 시 호출되는 메서드
@@ -75,10 +77,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        // CORS 헤더 추가
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+
 
         // JSON 응답 작성
         String jsonResponse = objectMapper.writeValueAsString(apiResponse);

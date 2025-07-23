@@ -20,7 +20,8 @@ edu-manager/
 │   │       ├── application/    # Main app & configurations
 │   │       ├── shared/         # Shared module (security, DTOs, exceptions)
 │   │       ├── user/           # User domain module
-│   │       └── student/        # Student domain module
+│   │       ├── student/        # Student domain module
+│   │       └── preregistration/ # Pre-registration & verification module
 │   └── src/main/resources/
 │       ├── application.yml     # Main configuration
 │       └── keys/              # RSA keys for JWT
@@ -161,6 +162,12 @@ Database connections are configured through `application.yml` with environment-s
 
 # Tests with specific profile
 ./gradlew test -Dspring.profiles.active=test
+
+# Run tests with coverage report
+./gradlew test jacocoTestReport
+
+# Run integration tests only
+./gradlew integrationTest
 ```
 
 ## Module Development Guidelines
@@ -211,6 +218,10 @@ Database connections are configured through `application.yml` with environment-s
    - HTTP status code mapping and error categorization
 
 ### 🚧 Current Tasks
+- **PreRegistration Module**: Implementation in progress
+  - Verification code-based signup for students/parents
+  - Code generation and validation logic
+  - Pre-registration entity and repository
 - **User Entity**: Create with JPA validation annotations
 - **Authentication Controller**: Login/register endpoints
 - **User Service & Repository**: Business logic and data access
@@ -230,6 +241,7 @@ Database connections are configured through `application.yml` with environment-s
 - **Redis**: 6379
 - **Kafka**: 29092
 - **Kafka UI**: 8082
+- **Prometheus**: 9090
 - **Frontend Dev Server**: 5173 (Vite default)
 
 ### JWT Configuration
@@ -258,8 +270,18 @@ Database connections are configured through `application.yml` with environment-s
 ### Generate JWT Keys (First Time Setup)
 ```bash
 cd backend
+
+# Create the keys directory if it doesn't exist
+mkdir -p src/main/resources/keys
+
+# Generate RSA private key
+openssl genrsa -out src/main/resources/keys/private.pem 2048
+
+# Generate RSA public key
+openssl rsa -in src/main/resources/keys/private.pem -pubout -out src/main/resources/keys/public.pem
+
+# Alternative: Use the generate-keys.sh script (if available)
 ./generate-keys.sh  # Unix/Mac
-# or
 generate-keys.bat   # Windows
 ```
 
@@ -271,6 +293,7 @@ generate-keys.bat   # Windows
 ### Database Migrations
 - Development: Hibernate `ddl-auto: update`
 - Production: Hibernate `ddl-auto: validate` (use Flyway/Liquibase for migrations)
+- Initial database setup: `scripts/init.sql` contains schema creation for PostgreSQL
 
 ### Module Communication
 - Use Spring Modulith events for inter-module communication
@@ -394,3 +417,9 @@ docker exec -it edu-manager-redis redis-cli FLUSHALL
 3. **Pull Requests**: Include description of changes and testing performed
 4. **Code Review**: All PRs require at least one review before merging
 5. **Testing**: Maintain test coverage above 80% for new code
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.

@@ -49,12 +49,12 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 	implementation 'org.springframework.modulith:spring-modulith-events-api'
 	implementation 'org.springframework.modulith:spring-modulith-starter-core'
-	implementation 'org.springframework.modulith:spring-modulith-starter-jpa'
+	// implementation 'org.springframework.modulith:spring-modulith-starter-jpa'
 	// MongoDB Modulith - 이벤트 퍼시스턴스용
 	implementation 'org.springframework.modulith:spring-modulith-starter-mongodb'
 	// Modulith Actuator & Observability
-	implementation 'org.springframework.modulith:spring-modulith-starter-actuator'
-	implementation 'org.springframework.modulith:spring-modulith-starter-observability'
+//	implementation 'org.springframework.modulith:spring-modulith-starter-actuator'
+//	implementation 'org.springframework.modulith:spring-modulith-starter-observability'
 	runtimeOnly 'org.springframework.modulith:spring-modulith-events-kafka'
 	
 	// OpenAPI 3 Documentation
@@ -64,8 +64,14 @@ dependencies {
 	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
 	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 	
+	// Email
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	
+	// Cache for OTP
+	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+	
 	// Monitoring & Metrics
-	implementation 'io.micrometer:micrometer-registry-prometheus'
+	// implementation 'io.micrometer:micrometer-registry-prometheus'
 	
 	// Database
 	runtimeOnly 'org.postgresql:postgresql'

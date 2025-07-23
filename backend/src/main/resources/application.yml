@@ -32,11 +32,11 @@ spring:
     events:
       mongodb:
         transaction-management:
-          enabled: true  # MongoDB 트랜잭션 활성화
+          enabled: false  # 단독 MongoDB에서는 트랜잭션 비활성화
       completion-mode: DELETE  # 완료된 이벤트 자동 삭제
       republish-outstanding-events-on-restart: true  # 재시작 시 미처리 이벤트 재발행
       jdbc-schema-initialization:
-        enabled: true
+        enabled: false  # JPA 이벤트 스토어 비활성화
   
   # Database Configuration - PostgreSQL
   datasource:
@@ -49,6 +49,7 @@ spring:
       minimum-idle: 5
       idle-timeout: 300000
       pool-name: EduManagerHikariCP
+      auto-commit: false
   
   # JPA Configuration
   jpa:
@@ -60,6 +61,7 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
     show-sql: true
+    open-in-view: false  # OSIV 비활성화로 성능 최적화
     properties:
       hibernate:
         format_sql: true
@@ -69,7 +71,7 @@ spring:
           order_inserts: true
           order_updates: true
         connection:
-          provider_disables_autocommit: true
+          provider_disables_autocommit: false
   
   # Redis Configuration
   data:
@@ -83,11 +85,12 @@ spring:
           max-idle: 8
           min-idle: 0
     
-    # MongoDB Configuration (나중에 필요시 추가)
+    # MongoDB Configuration - Modulith 이벤트 스토어용
     mongodb:
       host: localhost
       port: 27017
-      database: edumanager-docs
+      database: edumanager-events
+      auto-index-creation: true
   
   # Kafka Configuration
   kafka:
@@ -122,6 +125,8 @@ spring:
       write-dates-as-timestamps: false
     time-zone: Asia/Seoul
     default-property-inclusion: NON_NULL
+    modules:
+      - com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 
 # Server Configuration
 server:
@@ -154,14 +159,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info
   endpoint:
     health:
       show-details: when_authorized
-  metrics:
-    export:
-      prometheus:
-        enabled: true
 
 # Application Specific Configuration
 app:
@@ -185,7 +186,14 @@ app:
       - DELETE
       - OPTIONS
     allowed-headers: "*"
+    exposed-headers:
+      - Authorization
+      - X-Total-Count
+      - X-Page-Number
+      - X-Page-Size
+      - X-User-Role
     allow-credentials: true
+    max-age: 3600
   
   modulith:
     events:
