@@ -418,6 +418,27 @@ docker exec -it edu-manager-redis redis-cli FLUSHALL
 4. **Code Review**: All PRs require at least one review before merging
 5. **Testing**: Maintain test coverage above 80% for new code
 
+## Error Code Guidelines
+
+### Adding New Error Codes
+When adding new error codes, **ALWAYS** check the existing ErrorCode enum first to avoid duplicates:
+- Check if similar error already exists
+- Verify the code prefix and number are not already used
+- Follow the naming convention: CATEGORY_SPECIFIC_ERROR
+- Use appropriate HTTP status codes
+
+### Error Code Categories
+- **C**: Common (C001-C999)
+- **U**: User (U001-U999)
+- **A**: Authentication (A001-A999)
+- **S**: Student (S001-S999)
+- **CR**: Course (CR001-CR999) - Changed from C to avoid conflict
+- **V**: Validation (V001-V999)
+- **VR**: Verification (VR001-VR999) - Changed from V to avoid conflict
+- **E**: External System (E001-E999)
+- **F**: File (F001-F999)
+- **P**: Permission (P001-P999)
+
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.

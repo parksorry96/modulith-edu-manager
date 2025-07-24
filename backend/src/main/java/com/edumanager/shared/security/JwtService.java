@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -140,6 +141,47 @@ public class JwtService {
         } catch (JwtException e) {
             log.error("JWT 토큰 타입 추출 실패: {}", e.getMessage());
             return null;
+        }
+    }
+    public Long getAccessTokenExpiration() {
+        return jwtProperties.getExpiration().toSeconds();
+    }
+
+    public Long getRefreshTokenExpiration() {
+        return jwtProperties.getRefreshExpiration().toSeconds();
+    }
+
+    public String refreshAccessToken(String refreshToken) {
+        try{
+            if(!validateToken(refreshToken)){
+                throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+            }
+            String tokenType=extractTokenType(refreshToken);
+            if(!tokenType.equals(SecurityConstants.Jwt.TOKEN_TYPE_REFRESH)){
+                throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
+            }
+
+            Jwt jwt=jwtDecoder.decode(refreshToken);
+            String subject=jwt.getSubject();
+            String authorities=jwt.getClaimAsString(SecurityConstants.Jwt.AUTHORITIES_KEY);
+
+            Instant now = Instant.now();
+            long expirationSeconds = jwtProperties.getExpiration().toSeconds();
+
+            JwtClaimsSet claims= JwtClaimsSet.builder()
+                    .issuer(jwtProperties.getIssuer())
+                    .id(UUID.randomUUID().toString())
+                    .subject(subject)
+                    .audience(List.of(jwtProperties.getAudience()))
+                    .issuedAt(now)
+                    .expiresAt(now.plusSeconds(expirationSeconds))
+                    .claim(SecurityConstants.Jwt.AUTHORITIES_KEY, authorities)
+                    .claim(SecurityConstants.Jwt.TOKEN_TYPE_KEY, SecurityConstants.Jwt.TOKEN_TYPE_ACCESS)
+                    .build();
+            return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+        }catch(JwtException e){
+            log.error("리프레시 토큰 실패:{}",e.getMessage());
+            throw new BusinessException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
     }
 }

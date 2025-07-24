@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Comment;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ import java.util.Set;
 )
 @NoArgsConstructor(access= AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
+@SuperBuilder
 @SequenceGenerator(name="user_seq", sequenceName = "user_sequence", allocationSize=1)
 public class User extends BasicTimeEntity {
 
@@ -54,7 +55,7 @@ public class User extends BasicTimeEntity {
     @Comment("사용자 이름")
     private String name;
 
-    @Pattern(regexp=SecurityConstants.Validation.PASSWORD_PATTERN,
+    @Pattern(regexp=SecurityConstants.Validation.PHONE_PATTERN,
     message="전화번호는 010-0000-0000 형식이어야 합니다.")
     @Column(length=13)
     @Comment("전화번호")

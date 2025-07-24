@@ -11,10 +11,11 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @ComponentScan(basePackages = {
-    "com.edumanager.application",  // 애플리케이션 패키지
-    "com.edumanager.shared",       // 공유 모듈 (Security, Exception 등)
-    "com.edumanager.user",         // 사용자 모듈  
-    "com.edumanager.student"       // 학생 모듈
+        "com.edumanager.application",  // 애플리케이션 패키지
+        "com.edumanager.shared",       // 공유 모듈 (Security, Exception 등)
+        "com.edumanager.user",         // 사용자 모듈
+        "com.edumanager.student",      // 학생 모듈
+        "com.edumanager.core"
 })
 @EntityScan("com.edumanager")
 public class BackendApplication {
