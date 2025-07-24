@@ -2,6 +2,7 @@ package com.edumanager.application;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.ComponentScan;
     "com.edumanager.user",         // 사용자 모듈  
     "com.edumanager.student"       // 학생 모듈
 })
+@EntityScan("com.edumanager")
 public class BackendApplication {
 
     public static void main(String[] args) {
